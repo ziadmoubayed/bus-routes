@@ -60,7 +60,7 @@
 
         function getApi() { // call get api
             var httpLead = new XMLHttpRequest();
-            httpLead.open("GET", "http://142.93.234.82:5000/api/routes/register?user=" + userValue + "");
+            httpLead.open("GET", "http://localhost:5000/api/routes/register?user=" + userValue + "");
             // httpLead.setRequestHeader("content-type", "application/json");
             httpLead.send();
             httpLead.onreadystatechange = function() {
@@ -69,12 +69,13 @@
                     // document.getElementById('error').innerHTML = "User already exist";
                     setInterval(function() {
                         statusApi();
-                    }, 10000)
+                    }, 3000)
 
                 } else if (this.status == 200) {
                     var dataUpdate = this.response;
-
-
+                    setInterval(function() {
+                        statusApi();
+                    }, 3000)
                 }
             }
         }
@@ -87,7 +88,7 @@
                 "lon": longVar
             }
             var httpLead = new XMLHttpRequest();
-            httpLead.open("POST", "http://142.93.234.82:5000/api/routes/status?user=demo");
+            httpLead.open("POST", "http://localhost:5000/api/routes/status?user=" + userValue);
             httpLead.setRequestHeader("content-type", "application/json");
             httpLead.send(JSON.stringify(objectAll));
             httpLead.onreadystatechange = function() {
@@ -96,7 +97,7 @@
                     document.getElementById('submitCont').innerHTML = '';
                     document.getElementById('infoLoader').innerHTML = '';
                     var statusupdate = JSON.parse(this.response);
-                    var html = '<div class="distance"><div class="verticalCntr">Distance to back: <span id="back">' + statusupdate.back.distance + '</span></div></div><div class="distance"><div class="verticalCntr">Distance to front: <span id="front">' + statusupdate.front.distance + '</span></div></div>';
+                    var html = '<div class="distance"><div class="verticalCntr">Front: </br><span id="front">Distance: '+ statusupdate.front.distance + '</br>Time: ' + statusupdate.front.time +'</span></div></div>' + '<div class="distance"><div class="verticalCntr">Back: </br><span id="front">Distance: ' + statusupdate.back.distance + '</br>Time: ' + statusupdate.back.time +'</span></div></div>';
                     document.getElementById('infoDistance').innerHTML = html;
                 }
             }
