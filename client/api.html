@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=1">
+    <title>HomePage</title>
+    <link rel="icon" href="images/favicon.png" sizes="16x16">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <form>
+        <div class="innerForm">
+            <div id="submitCont">
+                <input type="text" placeholder="User name" id="user">
+                <button type="button" onclick="getUpdateApi()">Submit</button>
+            </div>
+            <span id="error"></span>
+            <div id="infoLoader"></div>
+        </div>
+    </form>
+    <div id="infoDistance"></div>
+
+    <script>
+        var latVar = '';
+        var longVar = '';
+
+        function getUpdateApi() { // function call after submit button
+            loca(); // call Location of browser if not used then coment this call function
+            document.getElementById('error').innerHTML = ""; // error is blank
+            if (document.getElementById('user').value == "") {
+                document.getElementById('error').innerHTML = 'Please enter UserName';
+            } else {
+                document.getElementById('infoLoader').innerHTML = '<img src="loader.gif">';
+                userValue = document.getElementById('user').value;
+                localStorage.setItem("username", userValue);
+                getApi(); // call the get api
+            }
+
+        }
+
+        function loca() { // call Location of browser if not used then coment this call function
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    //  latVar = position.coords.latitude;
+                    latVar = 30.6615466;
+                    // longVar = position.coords.longitude;
+                    longVar = 76.8610197;
+                    // console.log(latVar, longVar);
+                });
+            } else {
+                document.getElementById('error').innerHTML = "Geolocation is not supported by this browser.";
+            }
+
+        }
+
+        function getApi() { // call get api
+            var httpLead = new XMLHttpRequest();
+            httpLead.open("GET", "http://142.93.234.82:5000/api/routes/register?user=" + userValue + "");
+            // httpLead.setRequestHeader("content-type", "application/json");
+            httpLead.send();
+            httpLead.onreadystatechange = function() {
+                //console.log(this.response)
+                if (this.status == 400) {
+                    // document.getElementById('error').innerHTML = "User already exist";
+                    setInterval(function() {
+                        statusApi();
+                    }, 10000)
+
+                } else if (this.status == 200) {
+                    var dataUpdate = this.response;
+
+
+                }
+            }
+        }
+
+
+        function statusApi() { // call status api
+            var objectAll = {
+                "name": userValue,
+                "lat": latVar,
+                "lon": longVar
+            }
+            var httpLead = new XMLHttpRequest();
+            httpLead.open("POST", "http://142.93.234.82:5000/api/routes/status?user=demo");
+            httpLead.setRequestHeader("content-type", "application/json");
+            httpLead.send(JSON.stringify(objectAll));
+            httpLead.onreadystatechange = function() {
+                //console.log(this.response)
+                if (this.status == 200) {
+                    document.getElementById('submitCont').innerHTML = '';
+                    document.getElementById('infoLoader').innerHTML = '';
+                    var statusupdate = JSON.parse(this.response);
+                    var html = '<div class="distance"><div class="verticalCntr">Distance to back: <span id="back">' + statusupdate.back.distance + '</span></div></div><div class="distance"><div class="verticalCntr">Distance to front: <span id="front">' + statusupdate.front.distance + '</span></div></div>';
+                    document.getElementById('infoDistance').innerHTML = html;
+                }
+            }
+        }
+
+    </script>
+</body>
+
+
+
+</html>
